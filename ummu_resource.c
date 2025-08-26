@@ -13,7 +13,7 @@
 #include "ummu_resource.h"
 #include "ummu_queue.h"
 
-void *ummu_get_core_buf(unsigned int tid, enum ummu_buf_mode mode, size_t size, int fd)
+void *ummu_get_core_buf(unsigned int tid, enum ummu_buf_mode mode, size_t size, int fd, unsigned long idx)
 {
         int prot = PROT_WRITE | PROT_READ;
         int flags = MAP_SHARED;
@@ -26,6 +26,12 @@ void *ummu_get_core_buf(unsigned int tid, enum ummu_buf_mode mode, size_t size, 
         switch (mode) {
                 case BASE_MODE_ENTRY_BLOCK:
                         addr = mmap(NULL, size, prot, flags, fd, UMMU_OFFSET_BLK(0UL, tid));
+                        break;
+                case BASE_MODE_TABLE_BLOCK:
+                        if (size < BLOCK_SIZE_16K || size > BLOCK_SIZE_2M) {
+                                return addr;
+                        }
+                        addr = mmap(NULL, size, prot, flags, fd, UMMU_OFFSET_BLK(idx, tid));
                         break;
                 case BASE_MODE_QUEUE:
                         addr = mmap(NULL, size, prot, flags, fd, UMMU_OFFSET_QUE(tid));
@@ -43,6 +49,7 @@ void ummu_free_core_buf(enum ummu_buf_mode mode, void *buf, size_t size)
                 case BASE_MODE_ENTRY_BLOCK:
                         munmap(buf, BLOCK_SIZE_4K);
                         break;
+                case BASE_MODE_TABLE_BLOCK:
                 case BASE_MODE_QUEUE:
                         munmap(buf, size);
                         break;
@@ -51,6 +58,36 @@ void ummu_free_core_buf(enum ummu_buf_mode mode, void *buf, size_t size)
         }
 
         return;
+}
+
+int ummu_get_tid(int fd, struct ummu_tid_info *info)
+{
+        if (fd < 0) {
+                UMMU_MAPT_ERROR_LOG("Shared fd is invalid.\n");
+                return -ENOENT;
+        }
+
+        info->dev = (~0UL);
+
+        return ioctl(fd, UMMU_IOCALLOC_TID, info);
+}
+
+void ummu_put_tid(int fd, unsigned int tid)
+{
+        struct ummu_tid_info info = {
+                .tid = tid,
+        };
+        int ret;
+
+        if (fd < 0) {
+                UMMU_MAPT_ERROR_LOG("Shared fd is invalid.\n");
+                return;
+        }
+
+        ret = ioctl(fd, UMMU_IOCFREE_TID, &info);
+        if (ret != 0) {
+                UMMU_MAPT_ERROR_LOG("Failed to put tid, ret = %d.\n", ret);
+        }
 }
 
 void ummu_kcmd_plbi(int fd, struct ummu_tid_info *info, uint32_t opcode)

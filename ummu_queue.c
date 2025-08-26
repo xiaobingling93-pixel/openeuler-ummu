@@ -44,7 +44,7 @@ int ummu_queue_create(struct ummu_mapt_info *mapt_info, struct ummu_tid_info *in
 
         size = PAGE_SIZE * (1UL + (1UL << info->pcmdq_order) + (1UL << info->pcplq_order));
         queue_size = size * ummu_cnt;
-        start_addr = ummu_get_core_buf(mapt_info->tid, BASE_MODE_QUEUE, queue_size, fd);
+        start_addr = ummu_get_core_buf(mapt_info->tid, BASE_MODE_QUEUE, queue_size, fd, 0);
         if (CORE_BUF_CHECK_INVALID(start_addr)) {
                 UMMU_MAPT_ERROR_LOG("Get queue resource failed.\n");
                 ret = -ENOMEM;

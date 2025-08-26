@@ -27,6 +27,11 @@ struct ummu_ctx_info *get_ummu_ctx(void)
         return g_ummu_ctx;
 }
 
+static void ummu_mapt_info_destroy(void *info)
+{
+        ummu_mapt_destroy((struct ummu_mapt_info *)info);
+}
+
 static void ummu_get_log_level(void)
 {
         FILE *fd = fopen("/usr/lib64/ummu_log_level", "r");

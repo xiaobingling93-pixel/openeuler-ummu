@@ -12,5 +12,14 @@
 #include <unistd.h>
 #include <ummu_core.h>
 #include <stdint.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+int ummu_allocate_tid(struct ummu_tid_attr *tid_attr, uint32_t *tid);
+
+int ummu_free_tid(uint32_t tid);
+#ifdef __cplusplus
+}
+#endif
 
 #endif
