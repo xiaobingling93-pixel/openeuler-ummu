@@ -76,7 +76,7 @@ struct ummu_mapt_table_node *ummu_alloc_level_block(struct ummu_mapt_info *mapt_
         block_size = mapt_info->block_base.table_ctx->blk_exp_size;
 
         mapt_block = (struct ummu_mapt_block *)mapt_info->block_base.table_ctx->mapt_block_array[mapt_block_index];
-        // the mapt_block corresponding to level_id does not exist.
+        /* the mapt_block corresponding to level_id does not exist. */
         if (mapt_block == NULL) {
                 mapt_block = ummu_alloc_new_mapt_block(mapt_info, block_size, mapt_block_index);
                 if (mapt_block == NULL) {
@@ -99,4 +99,30 @@ struct ummu_mapt_table_node *ummu_alloc_level_block(struct ummu_mapt_info *mapt_
         mapt_block->level_cnt++;
 
         return (struct ummu_mapt_table_node *)mapt_block->block_addr + next_lv_offset;
+}
+
+void ummu_free_level_block(struct ummu_mapt_info *mapt_info, struct ummu_mapt_table_node *prev_node)
+{
+        uint32_t lv_offset, level_id, lv_index;
+        struct ummu_mapt_block *block;
+
+        lv_offset = 0;
+        lv_index = 0;
+        if (prev_node != NULL) {
+                lv_offset = TABLE_LVL_OFFSET(prev_node->next_lv_offset_low, prev_node->next_lv_offset_high);
+                lv_index = prev_node->next_lv_index;
+        }
+        block = (struct ummu_mapt_block *)mapt_info->block_base.table_ctx->mapt_block_array[lv_index];
+        level_id = (block->block_id * PER_MAPT_LEVEL_BLOCK_CNT) + lv_offset / MAX_MAPT_ENTRY_INDEX;
+        if (level_id != 0) {
+                block->level_cnt--;
+                ummu_clear_bit(level_id, mapt_info->block_base.table_ctx->level_block_bitmap);
+        }
+        if (block->level_cnt == 0 && mapt_info->block_base.table_ctx->block_cnt > 1) {
+                mapt_info->block_base.table_ctx->mapt_block_array[block->block_id] = NULL;
+                mapt_info->block_base.table_ctx->block_cnt--;
+                ummu_free_core_buf(BASE_MODE_TABLE_BLOCK, (void *)block->block_addr,
+                                                   mapt_info->block_base.table_ctx->blk_exp_size);
+                free(block);
+        }
 }

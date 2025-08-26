@@ -135,10 +135,10 @@ int ummu_send_cmd(struct ummu_mapt_cmd_entry *cmd_plbi, struct ummu_mapt_info *m
 static uint32_t get_minist_log2size_range(size_t size)
 {
         uint32_t idx = 0;
-        uint32_t temp = 0;
+        uint64_t temp = 0;
 
         if (size > 0) {
-                temp = (uint32_t)size - (uint32_t)1;
+                temp = (uint64_t)size - (uint64_t)1;
         }
 
         while (temp > 0) {
