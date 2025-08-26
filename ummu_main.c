@@ -22,6 +22,11 @@
 static struct ummu_ctx_info *g_ummu_ctx = NULL;
 ummu_vlog_level_t g_loglevel;
 
+struct ummu_ctx_info *get_ummu_ctx(void)
+{
+        return g_ummu_ctx;
+}
+
 static void ummu_get_log_level(void)
 {
         FILE *fd = fopen("/usr/lib64/ummu_log_level", "r");
