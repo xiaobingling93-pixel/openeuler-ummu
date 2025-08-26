@@ -54,6 +54,8 @@ struct ummu_mapt_entry_node {
 
 #define INDEX_LEVEL_BITMAP_SIZE (MAX_LEVEL_ID_SIZE >> BITS_TO_BITMAP_SHIFT)
 
+/* max address = 0x1 000 000 000 000 - 1 */
+#define MAX_ADDRESS_BITS 48U
 #define UMMU_MAX_TOKEN_NUM 2
 
 struct ummu_mapt_block {
@@ -61,6 +63,7 @@ struct ummu_mapt_block {
         size_t blk_size;
         uint32_t block_id;
         uint16_t level_cnt;
+        uint16_t level_entry_cnt[PER_MAPT_LEVEL_BLOCK_CNT];
 };
 
 struct ummu_mapt_table_ctx {
@@ -134,6 +137,7 @@ enum ummu_grant_op_type {
 
 struct ummu_mapt_table_node {
         uint32_t valid : 1;
+        uint32_t type : 1;
         uint32_t next_block : 1;
         uint32_t e_bit : 1;
         uint32_t permission : 6;
@@ -176,12 +180,37 @@ struct ummu_data_info {
         uint8_t lvl;
 };
 
+#define MAPT_VPAGE_SHIFT 12U
+
+static const uint32_t g_mapt_range_bits[MAX_LEVEL_INDEX + 1U][2] = {{47, 39}, {38, 30}, {29, 21}, {20, 12}};
+
+#define GET_BITS_MASK(bits) (((uint64_t)1 << (bits)) - 1)
+
+#define GET_LEVEL_RANGE_MASK(level) (GET_BITS_MASK(g_mapt_range_bits[(level)][1]))
+
+#define GET_LEVEL_BLOCK_INDEX(addr, level) (((uint64_t)(addr) >> g_mapt_range_bits[(level)][1]) & \
+                (GET_BITS_MASK(g_mapt_range_bits[(level)][0] - g_mapt_range_bits[(level)][1] + 1)))
+
 #define MAX_CMD_QUE_INDEX(size) (((uint64_t)1 << (size)) - (uint64_t)1)
 
+#define ALIGN_MAPT_MASK(x, mask) ((x) & ~(mask))
+
+#define ALIGN_MAPT(x, a) ALIGN_MAPT_MASK(x, (typeof(x))(a) - 1UL)
+
+#define ALIGN_CHECK(x, a) ((ALIGN_MAPT((x), (a))) == (x) ? true : false)
+
+#define ALIGN_VPAGE_SHIFT_CHECK(val) ALIGN_CHECK(val, 1UL << MAPT_VPAGE_SHIFT)
+
+#define ENTRY_ADDR_LOW(addr) ((uint32_t)((addr) & GENMASK_ULL(31, 0)))
+#define ENTRY_ADDR_HIGH(addr) ((uint32_t)(((addr) & GENMASK_ULL(47, 32)) >> 32UL))
+
+#define TABLE_ADDR_LOW(addr) ((uint32_t)((addr) & GENMASK_ULL(31, 0)))
+#define TABLE_ADDR_HIGH(addr) ((uint32_t)(((addr) & GENMASK_ULL(38, 32)) >> 32UL))
 #define LVL_OFFSET_LOW(offset) ((uint32_t)((offset) & GENMASK_ULL(19, 0)))
 #define LVL_OFFSET_HIGH(offset) ((uint32_t)(((offset) & GENMASK_ULL(29, 20)) >> 20UL))
 
 #define ADDR_FULL(low, high) (((uint64_t)(high) << 32UL) | (uint64_t)(low))
+#define TABLE_LVL_OFFSET(low, high) (((uint32_t)(high) << 20UL) | (uint32_t)(low))
 
 /* =========================================== common global variable ============================================ */
 extern struct ummu_ctx_info *get_ummu_ctx(void);
