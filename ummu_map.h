@@ -19,3 +19,4 @@ void *ummu_map_get(void *map, uint32_t key);
 void ummu_map_clear(void *map, ummu_value_destroy destroyer);
 
 #endif
+

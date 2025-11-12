@@ -26,3 +26,4 @@ void hashmap_clear(void *map, value_destroy destroyer);
 }
 #endif
 #endif
+

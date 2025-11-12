@@ -17,9 +17,9 @@ extern "C" {
 #endif
 
 enum range_compare_ret {
-        RANGE_MATCH = 0,
-        RANGE_OVERLAP,
-        RANGE_NOT_EXIST
+	RANGE_MATCH = 0,
+	RANGE_OVERLAP,
+	RANGE_NOT_EXIST
 };
 typedef void (*clear_seg_node)(void *);
 
@@ -33,3 +33,4 @@ void ummu_destroy_seg_tree(uint64_t *seg_tree, clear_seg_node cleaner);
 #endif
 
 #endif
+

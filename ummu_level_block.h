@@ -12,7 +12,8 @@
 #include "ummu_mapt.h"
 
 struct ummu_mapt_table_node *ummu_alloc_level_block(struct ummu_mapt_info *mapt_info,
-                                                    struct ummu_mapt_table_node *pre_node,
-                                                    struct ummu_mapt_block *pre_node_mapt_block);
+						    struct ummu_mapt_table_node *pre_node,
+						    struct ummu_mapt_block *pre_node_mapt_block);
 void ummu_free_level_block(struct ummu_mapt_info *mapt_info, struct ummu_mapt_table_node *prev_node);
 #endif
+

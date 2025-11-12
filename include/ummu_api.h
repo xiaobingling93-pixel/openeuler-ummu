@@ -18,7 +18,7 @@ extern "C" {
 int ummu_allocate_tid(struct ummu_tid_attr *tid_attr, uint32_t *tid);
 
 int ummu_grant(uint32_t tid, void *data, size_t data_size,
-        enum ummu_mapt_perm perm, struct ummu_seg_attr *seg_attr);
+	enum ummu_mapt_perm perm, struct ummu_seg_attr *seg_attr);
 
 int ummu_ungrant(uint32_t tid, void *data, size_t size);
 
@@ -30,3 +30,4 @@ int ummu_free_tid(uint32_t tid);
 #endif
 
 #endif
+
