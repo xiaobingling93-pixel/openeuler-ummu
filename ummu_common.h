@@ -26,25 +26,15 @@
 #define for_each_set_bit(bit, addr, size) \
 	for ((bit) = find_first_bit((addr), (size)); (bit) < (size); (bit) = find_next_bit((addr), (size), (bit) + 1UL))
 
-#if defined(__x86_64__)
-static inline void ummu_to_device_wmb(void)
-{
-	asm volatile("" ::: "memory");
-}
-static inline void ummu_from_device_rmb(void)
-{
-	asm volatile("" ::: "memory");
-}
-#elif defined(__aarch64)
 static inline void ummu_to_device_wmb(void)
 {
 	asm volatile("dmb oshst" ::: "memory");
 }
+
 static inline void ummu_from_device_rmb(void)
 {
 	asm volatile("dmb osh" ::: "memory");
 }
-#endif
 
 static inline void __attribute__((always_inline)) ummu_set_bit(uint32_t nr, unsigned long *addr)
 {
