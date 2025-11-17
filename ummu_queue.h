@@ -16,8 +16,8 @@
 
 #define PAGE_SIZE ((unsigned long)(getpagesize()))
 
-#define PAGE_SHIFT ((unsigned long)(((PAGE_SIZE/0x1000UL) > 0UL) ? \
-                        (12UL + (unsigned long)__builtin_ctz(PAGE_SIZE/0x1000UL)) : 12UL))
+#define PAGE_SHIFT ((unsigned long)(((PAGE_SIZE / 0x1000UL) > 0UL) ? \
+			(12UL + (unsigned long)__builtin_ctz(PAGE_SIZE / 0x1000UL)) : 12UL))
 
 
 #define PSYNC_OP 0x01
@@ -36,12 +36,12 @@
 #define Q_IDX(idx, size) ((idx) & (((uint16_t)1 << (size)) - (uint16_t)1))
 
 struct ummu_mapt_cmd_entry {
-        uint32_t opcode:8;
-        uint32_t cqe_en:1;
-        uint32_t reserved_0:23;
-        uint32_t range:6;
-        uint32_t reserved_1:26;
-        uint64_t addr;
+	uint32_t opcode:8;
+	uint32_t cqe_en:1;
+	uint32_t reserved_0:23;
+	uint32_t range:6;
+	uint32_t reserved_1:26;
+	uint64_t addr;
 };
 
 #define CMD_ENTRY_SHIFT 4
@@ -49,26 +49,26 @@ struct ummu_mapt_cmd_entry {
 #define CPL_ENTRY_SHIFT 2
 
 struct ummu_mapt_cpl_entry {
-        uint32_t cpl_status:4;
-        uint32_t reserved_0:12;
-        uint32_t cmdq_ci:16;
+	uint32_t cpl_status:4;
+	uint32_t reserved_0:12;
+	uint32_t cmdq_ci:16;
 };
 
 struct ummu_mapt_ctrl_pages {
-        uint16_t ucmdq_pi;
-        uint16_t reserved_0;
-        uint16_t ucmdq_ci;
-        uint16_t reserved_1;
-        uint16_t ucplq_pi;
-        uint16_t reserved_2;
-        uint16_t ucplq_ci;
-        uint16_t reserved_3;
+	uint16_t ucmdq_pi;
+	uint16_t reserved_0;
+	uint16_t ucmdq_ci;
+	uint16_t reserved_1;
+	uint16_t ucplq_pi;
+	uint16_t reserved_2;
+	uint16_t ucplq_ci;
+	uint16_t reserved_3;
 };
 
 struct ummu_mapt_queue_args {
-        struct ummu_mapt_cmd_entry *cmd_entry;
-        struct ummu_mapt_cpl_entry *cpl_entry;
-        struct ummu_mapt_ctrl_pages *ctrl_page;
+	struct ummu_mapt_cmd_entry *cmd_entry;
+	struct ummu_mapt_cpl_entry *cpl_entry;
+	struct ummu_mapt_ctrl_pages *ctrl_page;
 };
 
 int ummu_queue_create(struct ummu_mapt_info *mapt_info, struct ummu_tid_info *info, int fd);
@@ -81,3 +81,4 @@ uint16_t ummu_update_queue_index(uint16_t index, uint16_t que_size);
 int ummu_get_cpl_psync(struct ummu_mapt_info *mapt_info, struct ummu_mapt_queue_args *cmd_que, uint16_t pi_sync);
 
 #endif
+

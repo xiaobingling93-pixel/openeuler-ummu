@@ -22,3 +22,4 @@ int ummu_delete_addr(uint64_t seg_table, struct ummu_data_info *grant_param);
 int ummu_token_update(uint64_t seg_table, struct ummu_data_info *grant_param, enum ummu_grant_op_type op);
 
 #endif
+
