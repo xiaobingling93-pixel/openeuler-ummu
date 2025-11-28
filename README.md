@@ -1,37 +1,27 @@
-# ummu
+# Welcome to use UMMU library
+  UMMU library makes the memory sharement between user-mode process and I/O device available.
+# Overview
+  The UMMU library toolkit includes one shared library libummu. It supports two main functions:
+   - Allocate unique token id for user-mode process and I/O device
+   - Manage the access rights for shared memory
+  One token id can be bond with multple memory segments, and it must be released once no longer in use.
 
-#### 介绍
-An UMMU driver on user space, provide UMMU device registration,initialization,configuration table management,address translation table management, and permission table management.
+# Build and Install
+  ## For Production Use
+  Two rpm packages are supported: libummu-${version}.aarch64.rpm, libummu-devel-${version}.aarch64.rpm. You can download at (xxx).
+   You can install them by using:
+   > rpm -ivh libummu-${version}.aarch64.rpm
+   > rpm -ivh libummu-devel-${version}.aarch64.rpm
 
-#### 软件架构
-软件架构说明
+   libummu.so would be installed at /usr/lib64, include files would be installed at /usr/include.
 
+  ## For Testing and Development
+   A local copy of the Git Repository can be obtained by cloning it from the original UMMU library repository using:
+   > git clone https://gitee.com/openeuler/ummu.git
 
-#### 安装教程
+# License
+  UMMU library is licensed under SPDX-License-Identifier: MIT.
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 使用说明
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
-
-
-#### 特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+# Copyright
+  Copyright (c) 2025 HiSilicon Technologies Co., Ltd.
+  All rights reserved.

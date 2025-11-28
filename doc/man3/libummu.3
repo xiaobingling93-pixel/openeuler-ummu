@@ -1,0 +1,89 @@
+.TH "LIBUMMU" "1" "libummu"
+.SH NAME
+libummu \- overview of UMMU library
+.SH SYNOPSIS
+#include <ummu_api.h>
+.SH OVERVIEW
+libummu primarily provides permission table management functions, including the creation, release, and invalidation of permission tables, while also supporting context maintenance for operating permission tables.It supports two main functions:
+   - Allocate unique token id for user-mode process and I/O device.
+   - Manage the access rights for shared memory.
+
+One token id can be bond with multple memory segments, and it must be released once no longer in use.
+
+Each memory segment can be authorized by three items: read or write permission, token values, ebit.
+Token value and ebit are optional.
+
+.SH API DESCRIPTION
+.B ummu_allocate_tid(struct ummu_tid_attr \*tid_attr, uint32_t \*tid)
+  Allocate unique ID for user-mode process and I/O device.
+  - parameters
+    - input parameter: tid_attr
+    - output parameter: tid
+    - return value:
+      0: success
+      others: failed
+  - enum ummu_mapt_mode: Memory Address Permission Table mode
+    - MAPT_MODE_TABLE: Only support one memory address segment management for one tid
+    - MAPT_MODE_ENTRY: Support multiple memory address segments manamgement for one tid
+  - struct ummu_tid_attr
+  	- enum ummu_mapt_mode mode
+
+.B ummu_grant(uint32_t tid, void \*data, size_t data_size,enum ummu_mapt_perm perm, struct ummu_seg_attr \*seg_attr)
+  Add access permission for one memory segment, and bind this memory segment with one tid.
+  - parameters
+    - input parameters:
+      - tid: allocated by interface ummu_allocate_tid
+      - data: the start of virtual address
+      - size: the memory size intended to be granted
+      - perm: access rights
+      - seg_attr: other attributes for target memory segments
+    - return value:
+      0: success
+      others: failed
+  - enum ummu_mapt_perm
+    - MAPT_PERM_W: write only
+    - MAPT_PERM_R: read only
+    - MAPT_PERM_RW: read and write
+    - MAPT_PERM_ATOMIC_W: atomic write only
+    - MAPT_PERM_ATOMIC_R: atomic read only
+    - MAPT_PERM_ATOMIC_RW: atoic read and write
+  - struct ummu_seg_attr
+    - struct ummu_token_info
+      - unsigned int input: Only 0 and 1 are allowed.if input is 0, input tokenVal would be used; else ummu library would         generate token value.
+      - unsigned int tokenVal: When input is 1, this would be used.
+    - enum ummu_ebit_state
+      - UMMU_EBIT_OFF: enable ebit check
+      - UMMU_EBIT_ON: disable ebit check
+
+.B ummu_ungrant(uint32_t tid, void \*data, size_t size)
+  Remove access permission for one memory segment, and unbind memory segment with tid.
+  - parameters
+    - input parameters:
+      - tid: allocated by interface ummu_allocate_tid
+      - data: the start of virtual address
+      - size: the memory size intended to be ungranted
+    - return value:
+      0: success
+      others: failed
+
+.B ummu_ungrant_by_token(uint32_t tid, void \*data, size_t size, uint32_t token_val)
+  Remove one token value from the permssion table of target memory segment.
+  - parameters
+    - input parameters:
+      - tid: allocated by interface ummu_allocate_tid
+      - data: the start of virtual address
+      - size: the memory size intended to be ungranted
+      - taken_val: intend to be removed token value
+    - return value:
+      0: success
+      others: failed
+
+.B ummu_free_tid(uint32_t tid)
+  Free all memory segments resources bond with target tid.
+  - parameters
+    - input parameters:
+      - tid: intend to free
+    - return value:
+      0: success
+      others: failed
+
