@@ -180,7 +180,7 @@ struct ummu_data_info {
 	uint8_t lvl;
 };
 
-#define min(x, y) ((x) < (y) ? (x) : (y))
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAPT_VPAGE_SHIFT 12U
 
 static const uint32_t g_mapt_range_bits[MAX_LEVEL_INDEX + 1U][2] = {{47, 39}, {38, 30}, {29, 21}, {20, 12}};

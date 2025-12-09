@@ -95,6 +95,7 @@ static void child_process_after_fork(void)
 		}
 		if (g_ummu_ctx->shared_fd >= 0) {
 			(void)close(g_ummu_ctx->shared_fd);
+			g_ummu_ctx->shared_fd = -1;
 		}
 		(void)pthread_mutex_destroy(&g_ummu_ctx->ctx_mutex);
 		free(g_ummu_ctx);
