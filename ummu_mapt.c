@@ -70,7 +70,8 @@ static int ummu_mapt_table_ctx_init(struct ummu_mapt_info *mapt_info, struct umm
 	}
 
 	mapt_info->block_base.table_ctx = table_ctx;
-	mapt_info->block_base.table_ctx->expan = info->hw_cap & HW_CAP_EXPAN;
+	mapt_info->block_base.table_ctx->expan =
+		(info->hw_cap & HW_CAP_EXPAN) ? true : false;
 	mapt_info->block_base.table_ctx->blk_exp_size = info->blk_exp_size;
 
 	root = ummu_alloc_level_block(mapt_info, &pre_node, block);
@@ -475,7 +476,7 @@ static int ummu_table_clear_head_node(struct ummu_data_info *data_info, uint32_t
 	cur_base = ADDR_FULL(cur_node->base_low, cur_node->base_high);
 	cur_limit = ADDR_FULL(cur_node->limit_low, cur_node->limit_high);
 	if (cur_base == node_base) {
-		data_info->lvl = min(level, data_info->lvl);
+		data_info->lvl = MIN(level, data_info->lvl);
 		loop_cnt = 0;
 		do {
 			rest_node_base = cur_limit + 1UL;
@@ -528,7 +529,8 @@ static int ummu_table_clear_node_by_level(struct ummu_data_info *data_info,
 		return -EINVAL;
 	}
 
-	mapt_blk = (struct ummu_mapt_block *)data_info->mapt_info->block_base.table_ctx->mapt_block_array[pre_node->next_lv_index];
+	mapt_blk =
+	(struct ummu_mapt_block *)data_info->mapt_info->block_base.table_ctx->mapt_block_array[pre_node->next_lv_index];
 	if (mapt_blk == NULL) {
 		UMMU_MAPT_ERROR_LOG("Mapt block is invalid.\n");
 		return -EINVAL;
@@ -982,7 +984,7 @@ static void ummu_mapt_table_ctx_uninit(struct ummu_mapt_info *mapt_info)
 		ummu_destroy_seg_mng(&table_ctx->granted_addr_mng);
 	}
 
-	for_each_set_bit(idx, table_ctx->level_block_bitmap, MAX_LEVEL_ID_SIZE) {
+	FOR_EACH_SET_BIT(idx, table_ctx->level_block_bitmap, MAX_LEVEL_ID_SIZE) {
 		block_id = idx / PER_MAPT_LEVEL_BLOCK_CNT;
 		if ((idx % PER_MAPT_LEVEL_BLOCK_CNT) != 0) {
 			continue;

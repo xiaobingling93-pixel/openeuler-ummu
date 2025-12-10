@@ -10,8 +10,8 @@
 #include <sys/ioctl.h>
 
 #include "ummu_log.h"
-#include "ummu_resource.h"
 #include "ummu_queue.h"
+#include "ummu_resource.h"
 
 void *ummu_get_core_buf(unsigned int tid, enum ummu_buf_mode mode, size_t size, int fd, unsigned long idx)
 {

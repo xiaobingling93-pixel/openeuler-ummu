@@ -23,7 +23,7 @@
 
 #define DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
 #define BITS_TO_LONGS(cnt) DIV_ROUND_UP((cnt), BITS_PER_LONG)
-#define for_each_set_bit(bit, addr, size) \
+#define FOR_EACH_SET_BIT(bit, addr, size) \
 	for ((bit) = find_first_bit((addr), (size)); (bit) < (size); (bit) = find_next_bit((addr), (size), (bit) + 1UL))
 
 static inline void ummu_to_device_wmb(void)

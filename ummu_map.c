@@ -18,17 +18,17 @@ int ummu_map_insert(void *map, uint32_t key, void *value)
 {
 	return hashmap_insert(map, key, value);
 }
- 
+
 void *ummu_map_get(void *map, uint32_t key)
 {
 	return hashmap_get(map, key);
 }
- 
+
 int ummu_map_del(void *map, uint32_t key)
 {
 	return hashmap_del(map, key);
 }
- 
+
 void ummu_map_clear(void *map, ummu_value_destroy destroyer)
 {
 	hashmap_clear(map, destroyer);
