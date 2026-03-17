@@ -783,7 +783,7 @@ static int ummu_grant_imp(struct ummu_mapt_info *mapt_info, struct ummu_data_inf
 		UMMU_MAPT_ERROR_LOG("Mode is invalid, only support entry or table mode.\n");
 		return -EINVAL;
 	}
-	if (data->op == UMMU_ADD_TOKEN) {
+	if (data->op == UMMU_ADD_TOKEN || ret != 0) {
 		ummu_plbi_va_cmd(mapt_info, data);
 	}
 
