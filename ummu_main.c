@@ -35,7 +35,7 @@ static void ummu_mapt_info_destroy(void *info)
 static void ummu_get_log_level(void)
 {
 	FILE *fd = fopen("/usr/lib64/ummu_log_level", "r");
-	char buffer[MAX_LEVEL_INDEX];
+	char buffer[MAX_LEVEL_INDEX] = { 0 };
 	long input_log_level;
 	char *end_ptr = NULL;
 
