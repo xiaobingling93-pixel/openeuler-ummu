@@ -64,7 +64,6 @@ static void ummu_get_log_level(void)
 static int ummu_ctx_init(struct ummu_ctx_info *ctx)
 {
 	(void)pthread_mutex_init(&ctx->ctx_mutex, NULL);
-	ctx->tid_cnt = 0;
 	ctx->shared_fd = -1;
 
 	errno = 0;

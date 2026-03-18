@@ -115,7 +115,6 @@ struct ummu_mapt_info {
 };
 
 struct ummu_ctx_info {
-	uint32_t tid_cnt;
 	pthread_mutex_t ctx_mutex;
 	void *mapt_map;
 	int shared_fd;

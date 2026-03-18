@@ -851,7 +851,6 @@ int ummu_grant(uint32_t tid, void *data, size_t data_size, enum ummu_mapt_perm p
 		return -EINVAL;
 	}
 	(void)pthread_mutex_lock(&mapt_info->mapt_mutex);
-	(void)pthread_mutex_unlock(&ummu_ctx->ctx_mutex);
 
 	data_info.data = data;
 	data_info.data_size = data_size;
@@ -861,6 +860,7 @@ int ummu_grant(uint32_t tid, void *data, size_t data_size, enum ummu_mapt_perm p
 
 	if ((bool)(ummu_check_data(&data_info, mapt_info->mode) != 0) ||
 		(bool)(ummu_perm_data_preproc(&data_info) != 0)) {
+		(void)pthread_mutex_unlock(&ummu_ctx->ctx_mutex);
 		(void)pthread_mutex_unlock(&mapt_info->mapt_mutex);
 		return -EINVAL;
 	}
@@ -868,11 +868,13 @@ int ummu_grant(uint32_t tid, void *data, size_t data_size, enum ummu_mapt_perm p
 	opt = ummu_grant_check(mapt_info, &data_info);
 	if (opt == UMMU_OP_END) {
 		UMMU_MAPT_ERROR_LOG("Check grant failed.\n");
+		(void)pthread_mutex_unlock(&ummu_ctx->ctx_mutex);
 		(void)pthread_mutex_unlock(&mapt_info->mapt_mutex);
 		return -EINVAL;
 	}
 	data_info.op = opt;
 	ret = ummu_grant_imp(mapt_info, &data_info);
+	(void)pthread_mutex_unlock(&ummu_ctx->ctx_mutex);
 	if (ret == 0) {
 		ret = ummu_update_info(opt, mapt_info, &data_info);
 	}
@@ -918,7 +920,6 @@ static int ummu_ungrant_data(uint32_t tid, void *data, size_t size, uint32_t tok
 		return -EINVAL;
 	}
 	(void)pthread_mutex_lock(&mapt_info->mapt_mutex);
-	(void)pthread_mutex_unlock(&ummu_ctx->ctx_mutex);
 
 	data_info.lvl = MAX_LEVEL_INDEX;
 	data_info.data = data;
@@ -929,6 +930,7 @@ static int ummu_ungrant_data(uint32_t tid, void *data, size_t size, uint32_t tok
 	data_info.data_limit = (uint64_t)data + (uint64_t)size - 1;
 
 	if (mapt_info->mode == MAPT_MODE_TABLE && !ALIGN_VPAGE_SHIFT_CHECK((uint64_t)data_info.data)) {
+		(void)pthread_mutex_unlock(&ummu_ctx->ctx_mutex);
 		(void)pthread_mutex_unlock(&mapt_info->mapt_mutex);
 		UMMU_MAPT_ERROR_LOG("Table mode, data_base must be 4K aligned.\n");
 		ret = -EINVAL;
@@ -937,6 +939,7 @@ static int ummu_ungrant_data(uint32_t tid, void *data, size_t size, uint32_t tok
 
 	opt = ummu_ungrant_check(mapt_info, &data_info);
 	if (opt == UMMU_OP_END) {
+		(void)pthread_mutex_unlock(&ummu_ctx->ctx_mutex);
 		(void)pthread_mutex_unlock(&mapt_info->mapt_mutex);
 		ret = -EINVAL;
 		goto out;
@@ -944,6 +947,7 @@ static int ummu_ungrant_data(uint32_t tid, void *data, size_t size, uint32_t tok
 	data_info.op = opt;
 
 	ret = ummu_ungrant_imp(mapt_info, &data_info);
+	(void)pthread_mutex_unlock(&ummu_ctx->ctx_mutex);
 	if (ret == 0) {
 		ret = ummu_update_info(opt, mapt_info, &data_info);
 	}
@@ -1045,12 +1049,11 @@ int ummu_free_tid(uint32_t tid)
 	}
 
 	(void)pthread_mutex_lock(&mapt_info->mapt_mutex);
-	ummu_ctx->tid_cnt--;
 	(void)ummu_map_del(ummu_ctx->mapt_map, tid);
-	(void)pthread_mutex_unlock(&ummu_ctx->ctx_mutex);
 	(void)pthread_mutex_unlock(&mapt_info->mapt_mutex);
 	ummu_mapt_destroy(mapt_info);
 	ummu_put_tid(ummu_ctx->shared_fd, tid);
+	(void)pthread_mutex_unlock(&ummu_ctx->ctx_mutex);
 
 	return 0;
 }
@@ -1074,6 +1077,7 @@ int ummu_allocate_tid(struct ummu_tid_attr *tid_attr, uint32_t *tid)
 	}
 	info.mode = tid_attr->mode;
 
+	(void)pthread_mutex_lock(&ummu_ctx->ctx_mutex);
 	ret = ummu_get_tid(ummu_ctx->shared_fd, &info);
 	if (ret != 0) {
 		UMMU_MAPT_ERROR_LOG("Get tid failed, ret = %d.\n", ret);
@@ -1087,23 +1091,21 @@ int ummu_allocate_tid(struct ummu_tid_attr *tid_attr, uint32_t *tid)
 		goto err_mapt_create;
 	}
 
-	(void)pthread_mutex_lock(&ummu_ctx->ctx_mutex);
 	ret = ummu_map_insert(ummu_ctx->mapt_map, info.tid, (void *)mapt_info);
 	if (ret != 0) {
 		UMMU_MAPT_ERROR_LOG("Insert mapt map failed.\n");
 		goto err_map_insert;
 	}
-	ummu_ctx->tid_cnt++;
 	(void)pthread_mutex_unlock(&ummu_ctx->ctx_mutex);
 	*tid = info.tid;
 
 	return 0;
 
 err_map_insert:
-	(void)pthread_mutex_unlock(&ummu_ctx->ctx_mutex);
 	ummu_mapt_destroy(mapt_info);
 err_mapt_create:
 	ummu_put_tid(ummu_ctx->shared_fd, info.tid);
+	(void)pthread_mutex_unlock(&ummu_ctx->ctx_mutex);
 	return ret;
 }
 
