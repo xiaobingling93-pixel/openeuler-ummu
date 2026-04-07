@@ -1081,6 +1081,7 @@ int ummu_allocate_tid(struct ummu_tid_attr *tid_attr, uint32_t *tid)
 	ret = ummu_get_tid(ummu_ctx->shared_fd, &info);
 	if (ret != 0) {
 		UMMU_MAPT_ERROR_LOG("Get tid failed, ret = %d.\n", ret);
+		(void)pthread_mutex_unlock(&ummu_ctx->ctx_mutex);
 		return ret;
 	}
 
